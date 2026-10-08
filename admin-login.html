@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Lishe Kwa Mtoto</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="lishe.jpg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    body{background:linear-gradient(135deg,var(--green-dark),var(--green));min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;}
+    body::before{content:'';position:absolute;top:-150px;right:-150px;width:400px;height:400px;border-radius:50%;background:rgba(244,163,0,0.08);}
+    body::after{content:'';position:absolute;bottom:-150px;left:-150px;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,0.04);}
+    .login-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:48px 44px;max-width:420px;width:100%;position:relative;z-index:2;}
+    .login-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:32px;}
+    .login-logo img{height:80px;margin-bottom:16px;}
+    .login-logo h1{font-size:1.1rem;font-weight:800;color:var(--green);}
+    .login-logo span{font-size:0.75rem;color:var(--text-light);margin-top:2px;}
+    .login-badge{display:inline-block;background:var(--green-pale);color:var(--green);padding:5px 16px;border-radius:var(--radius-pill);font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:0 auto 28px;display:block;width:fit-content;}
+    .login-btn{width:100%;padding:16px;background:var(--green);color:var(--white);border:none;border-radius:var(--radius-sm);font-family:'Montserrat',sans-serif;font-size:0.95rem;font-weight:800;cursor:pointer;transition:all 0.3s;margin-top:8px;}
+    .login-btn:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 8px 20px rgba(11,93,59,0.3);}
+    .demo-creds{background:var(--mango-pale);border-radius:var(--radius-sm);padding:16px 20px;margin-top:24px;font-size:0.82rem;color:var(--mango-dark);text-align:center;border:1px dashed var(--mango);}
+    .demo-creds strong{display:block;margin-bottom:4px;}
+    .error-msg{color:#dc2626;font-size:0.82rem;text-align:center;margin-top:12px;display:none;}
+    .back-link{display:block;text-align:center;margin-top:24px;font-size:0.82rem;color:var(--text-light);}
+    .back-link:hover{color:var(--green);}
+    .pw-wrap{position:relative;}
+    .pw-toggle{position:absolute;right:16px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text-light);}
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="lishe.jpg" alt="Lishe Kwa Mtoto">
+      <h1>Lishe Kwa Mtoto</h1>
+      <span>Admin Dashboard</span>
+    </div>
+    <span class="login-badge"><i class="fas fa-lock"></i> Secure Access</span>
+
+    <div class="form-field">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="admin@lishekwamtoto.org">
+    </div>
+    <div class="form-field">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="password" placeholder="Enter password">
+        <i class="fas fa-eye pw-toggle" id="pwToggle" onclick="togglePw()"></i>
+      </div>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt"></i> Sign In to Dashboard
+    </button>
+    <p class="error-msg" id="errorMsg"></p>
+
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Website</a>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCrqj8bvEQ8nLuJFxLClAGAvnGkaiYa7Hc",
+  authDomain: "lishe-kwa-mtoto-c23a9.firebaseapp.com",
+  projectId: "lishe-kwa-mtoto-c23a9",
+  storageBucket: "lishe-kwa-mtoto-c23a9.firebasestorage.app",
+  messagingSenderId: "1069234464410",
+  appId: "1:1069234464410:web:b523840867314a3d5ae123"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// SESSION persistence — login required every time browser or tab is closed
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+  .then(() => {
+    // Check if already signed in this session
+    auth.onAuthStateChanged(user => {
+      if (user) window.location.href = 'admin-dashboard.html';
+    });
+  })
+  .catch(console.error);
+
+function togglePw() {
+  const pw = document.getElementById('password');
+  const icon = document.getElementById('pwToggle');
+  if (pw.type === 'password') { pw.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+  else { pw.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw    = document.getElementById('password').value;
+  const btn   = document.getElementById('loginBtn');
+  if (!email || !pw) { showError('Please enter your email and password.'); return; }
+
+  btn.disabled    = true;
+  btn.innerHTML   = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
+  document.getElementById('errorMsg').style.display = 'none';
+
+  try {
+    await auth.signInWithEmailAndPassword(email, pw);
+    // onAuthStateChanged will redirect to dashboard
+  } catch (err) {
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In to Dashboard';
+    const msgs = {
+      'auth/user-not-found':    'No account found with that email.',
+      'auth/wrong-password':    'Incorrect password. Please try again.',
+      'auth/invalid-email':     'Please enter a valid email address.',
+      'auth/too-many-requests': 'Too many failed attempts. Please wait a moment.',
+      'auth/invalid-credential':'Invalid email or password.'
+    };
+    showError(msgs[err.code] || err.message);
+  }
+}
+
+document.getElementById('password').addEventListener('keypress', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>

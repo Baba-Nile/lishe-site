@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Lishe Kwa Mtoto Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="lishe.jpg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    body{background:#f4f6f9;}
+    .panel{display:none;}
+    .panel.active{display:block;}
+    .chart-card{background:var(--white);border-radius:var(--radius-md);padding:28px;box-shadow:var(--shadow-sm);}
+    .quick-actions{display:flex;gap:10px;flex-wrap:wrap;}
+    .qa-btn{padding:9px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);font-size:0.8rem;font-weight:700;color:var(--text-mid);cursor:pointer;transition:all 0.2s;font-family:'Montserrat',sans-serif;}
+    .qa-btn:hover{border-color:var(--green);color:var(--green);}
+    .admin-user-chip{display:flex;align-items:center;gap:10px;}
+    .admin-user-chip img{width:36px;height:36px;border-radius:50%;object-fit:cover;}
+    .admin-user-chip .name{font-size:0.85rem;font-weight:700;color:var(--text-dark);}
+    .admin-user-chip .role{font-size:0.72rem;color:var(--text-light);}
+    .gallery-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    .gallery-mini-item{position:relative;border-radius:var(--radius-sm);overflow:hidden;aspect-ratio:1;}
+    .gallery-mini-item img{width:100%;height:100%;object-fit:cover;}
+    .gallery-mini-item .del{position:absolute;top:6px;right:6px;background:rgba(220,38,38,0.9);color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;cursor:pointer;}
+    .modal-form .form-field{margin-bottom:16px;}
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+  <div class="admin-sidebar-logo">
+    <img src="lishe.jpg" alt="Logo">
+  </div>
+  <div class="admin-nav-section">Overview</div>
+  <a href="#" class="admin-nav-link active" onclick="showPanel('overview',this)"><span class="icon"><i class="fas fa-chart-pie"></i></span> Dashboard</a>
+  <a href="#" class="admin-nav-link" onclick="showPanel('analytics',this)"><span class="icon"><i class="fas fa-chart-line"></i></span> Analytics</a>
+  <div class="admin-nav-section">Content</div>
+  <a href="#" class="admin-nav-link" onclick="showPanel('donations',this)"><span class="icon"><i class="fas fa-hand-holding-heart"></i></span> Donations</a>
+  <a href="#" class="admin-nav-link" onclick="showPanel('projects',this)"><span class="icon"><i class="fas fa-folder-open"></i></span> Projects</a>
+  <a href="#" class="admin-nav-link" onclick="showPanel('gallery',this)"><span class="icon"><i class="fas fa-images"></i></span> Galleries</a>
+  <a href="#" class="admin-nav-link" onclick="showPanel('blog',this)"><span class="icon"><i class="fas fa-pen-nib"></i></span> Blog Posts</a>
+  <div class="admin-nav-section">People</div>
+  <a href="#" class="admin-nav-link" onclick="showPanel('volunteers',this)"><span class="icon"><i class="fas fa-people-carry"></i></span> Volunteers</a>
+  <a href="#" class="admin-nav-link" onclick="showPanel('messages',this)"><span class="icon"><i class="fas fa-envelope"></i></span> Messages</a>
+  <a href="#" class="admin-nav-link" onclick="showPanel('newsletter',this)"><span class="icon"><i class="fas fa-paper-plane"></i></span> Newsletter</a>
+  <div class="admin-nav-section">System</div>
+  <a href="#" class="admin-nav-link" onclick="showPanel('reports',this)"><span class="icon"><i class="fas fa-file-alt"></i></span> Reports</a>
+  <a href="#" onclick="signOut()" class="admin-nav-link" style="margin-top:auto;color:#fca5a5;"><span class="icon"><i class="fas fa-sign-out-alt"></i></span> Log Out</a>
+</aside>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <h2 id="panelTitle" style="font-size:1.15rem;font-weight:800;color:var(--text-dark);">Dashboard Overview</h2>
+    </div>
+    <div class="admin-user-chip">
+      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" alt="">
+      <div><div class="name">Admin User</div><div class="role">Super Admin</div></div>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="overview">
+      <div class="grid-4" style="margin-bottom:28px;">
+        <div class="admin-stat-card">
+          <div class="big" id="statTotalRaised">KES 0</div>
+          <div class="lbl">Total Raised (Live)</div>
+        </div>
+        <div class="admin-stat-card mango">
+          <div class="big">11,400+</div>
+          <div class="lbl">Children Fed Daily</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="big">30+</div>
+          <div class="lbl">Partner Schools</div>
+        </div>
+        <div class="admin-stat-card mango">
+          <div class="big" id="statDonorCount">0</div>
+          <div class="lbl">Total Donations Recorded</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px;">
+        <div class="chart-card">
+          <h3 style="font-size:1rem;color:var(--text-dark);margin-bottom:20px;">Daily Donations — Last 14 Days (KES)</h3>
+          <canvas id="donationChart" height="90"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 style="font-size:1rem;color:var(--text-dark);margin-bottom:20px;">Payment Source</h3>
+          <canvas id="paymentChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3 style="font-size:1rem;color:var(--text-dark);margin-bottom:20px;">Recent Donations (Live)</h3>
+        <table class="admin-table">
+          <thead><tr><th>Donor</th><th>Amount</th><th>Phone</th><th>Reference</th><th>When</th></tr></thead>
+          <tbody id="recentActivityBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-light);">Connecting to Firestore…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PANEL -->
+    <div class="panel" id="analytics">
+      <div class="grid-4" style="margin-bottom:28px;">
+        <div class="admin-stat-card">
+          <div class="big" id="gaActiveUsers">—</div>
+          <div class="lbl">Active Right Now</div>
+        </div>
+        <div class="admin-stat-card mango">
+          <div class="big" id="gaPageViews">—</div>
+          <div class="lbl">Page Views (30 days)</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="big" id="gaSessions">—</div>
+          <div class="lbl">Sessions (30 days)</div>
+        </div>
+        <div class="admin-stat-card mango">
+          <div class="big" id="gaCountries">—</div>
+          <div class="lbl">Countries Reached</div>
+        </div>
+      </div>
+
+      <!-- GA Measurement ID: G-SPJJ708ZR6 -->
+      <div class="chart-card" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:1rem;color:var(--text-dark);">Google Analytics — Live Reports</h3>
+          <a href="https://analytics.google.com" target="_blank" class="btn btn-primary btn-sm">
+            <i class="fas fa-external-link-alt"></i> Open Full GA Dashboard
+          </a>
+        </div>
+        <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:20px;">
+          Tracking ID: <strong>G-SPJJ708ZR6</strong> · Property: Lishe Kwa Mtoto · 
+          <span style="color:var(--green);font-weight:700;">● Live</span>
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="background:var(--cream);border-radius:var(--radius-md);padding:20px;">
+            <p style="font-size:0.75rem;font-weight:700;color:var(--text-light);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">What GA tracks on your site</p>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;"><i class="fas fa-check" style="color:var(--green);"></i> Page views per page</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;"><i class="fas fa-check" style="color:var(--green);"></i> Visitor countries &amp; cities</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;"><i class="fas fa-check" style="color:var(--green);"></i> Mobile vs desktop</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;"><i class="fas fa-check" style="color:var(--green);"></i> Traffic source (Google, WhatsApp, direct)</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;"><i class="fas fa-check" style="color:var(--green);"></i> Time on site &amp; bounce rate</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;"><i class="fas fa-check" style="color:var(--green);"></i> Donate button clicks</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;"><i class="fas fa-check" style="color:var(--green);"></i> Scroll depth per page</div>
+            </div>
+          </div>
+          <div style="background:var(--cream);border-radius:var(--radius-md);padding:20px;">
+            <p style="font-size:0.75rem;font-weight:700;color:var(--text-light);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Quick Links</p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <a href="https://analytics.google.com/analytics/web/#/p$(GA_PROPERTY)/reports/reportinghub?params=_u..nav%3Dmaui" target="_blank" style="color:var(--green);font-size:0.85rem;font-weight:600;"><i class="fas fa-users"></i> &nbsp;Real-time visitors</a>
+              <a href="https://analytics.google.com" target="_blank" style="color:var(--green);font-size:0.85rem;font-weight:600;"><i class="fas fa-file-alt"></i> &nbsp;Pages report</a>
+              <a href="https://analytics.google.com" target="_blank" style="color:var(--green);font-size:0.85rem;font-weight:600;"><i class="fas fa-globe"></i> &nbsp;Audience locations</a>
+              <a href="https://analytics.google.com" target="_blank" style="color:var(--green);font-size:0.85rem;font-weight:600;"><i class="fas fa-share-alt"></i> &nbsp;Traffic sources</a>
+              <a href="https://analytics.google.com" target="_blank" style="color:var(--green);font-size:0.85rem;font-weight:600;"><i class="fas fa-mobile-alt"></i> &nbsp;Device breakdown</a>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:16px 20px;background:var(--mango-pale);border-radius:var(--radius-sm);border-left:4px solid var(--mango);">
+          <p style="font-size:0.82rem;color:var(--mango-dark);font-weight:600;">
+            <i class="fas fa-info-circle"></i> &nbsp;
+            Data starts collecting once the tracking script is live on your website. Allow up to 48 hours for the first data to appear in Google Analytics.
+          </p>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3 style="font-size:1rem;color:var(--text-dark);margin-bottom:20px;">Page Traffic (Last 7 Days — updates once GA has data)</h3>
+        <canvas id="trafficChart" height="100"></canvas>
+      </div>
+    </div>
+
+    <!-- DONATIONS PANEL -->
+    <div class="panel" id="donations">
+      <div class="flex-between" style="margin-bottom:20px;">
+        <div class="quick-actions">
+        <button class="qa-btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+          <button class="qa-btn"><i class="fas fa-filter"></i> Filter</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('donationModal')"><i class="fas fa-plus"></i> Record Donation</button>
+      </div>
+      <div class="chart-card" style="padding:0;">
+        <table class="admin-table">
+          <thead><tr><th>Donor</th><th>Amount</th><th>Phone</th><th>Reference</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="donationsTableBody">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">Connecting to Firestore…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROJECTS PANEL -->
+    <div class="panel" id="projects">
+      <div class="flex-between" style="margin-bottom:20px;">
+        <p style="color:var(--text-mid);font-size:0.9rem;">Manage active programs and their funding allocation.</p>
+        <button class="btn btn-primary btn-sm" onclick="openModal('projectModal')"><i class="fas fa-plus"></i> New Project</button>
+      </div>
+      <div class="grid-3">
+        <div class="admin-stat-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <strong style="color:var(--green);">School Feeding</strong>
+            <span class="admin-badge badge-green">Active</span>
+          </div>
+          <div class="big" style="font-size:1.5rem;">11,400 children</div>
+          <div class="lbl">30+ schools · KES 280K allocated</div>
+        </div>
+        <div class="admin-stat-card mango">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <strong style="color:var(--mango-dark);">Emergency Response</strong>
+            <span class="admin-badge badge-mango">On-call</span>
+          </div>
+          <div class="big" style="font-size:1.5rem;">2,800 families</div>
+          <div class="lbl">3 events 2024 · KES 35K reserve</div>
+        </div>
+        <div class="admin-stat-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <strong style="color:var(--green);">Nutrition Education</strong>
+            <span class="admin-badge badge-green">Active</span>
+          </div>
+          <div class="big" style="font-size:1.5rem;">340 trained</div>
+          <div class="lbl">12 workshops/yr · KES 20K allocated</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GALLERY PANEL -->
+    <div class="panel" id="gallery">
+      <div class="flex-between" style="margin-bottom:20px;">
+        <div class="quick-actions">
+          <button class="qa-btn active" style="border-color:var(--green);color:var(--green);">West Pokot</button>
+          <button class="qa-btn">Trans Nzoia</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('uploadModal')"><i class="fas fa-upload"></i> Upload Photo</button>
+      </div>
+      <div class="chart-card">
+        <div class="gallery-mini-grid">
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=200"><div class="del">✕</div></div>
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=200"><div class="del">✕</div></div>
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1590650046871-92c887180603?w=200"><div class="del">✕</div></div>
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=200"><div class="del">✕</div></div>
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1547496614-c19780f41fd0?w=200"><div class="del">✕</div></div>
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1544982503-9f984c14501a?w=200"><div class="del">✕</div></div>
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200"><div class="del">✕</div></div>
+          <div class="gallery-mini-item"><img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=200"><div class="del">✕</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOG PANEL -->
+    <div class="panel" id="blog">
+      <div class="flex-between" style="margin-bottom:20px;">
+        <p style="color:var(--text-mid);font-size:0.9rem;" id="blogMeta">Loading…</p>
+        <button class="btn btn-primary btn-sm" onclick="openModal('blogModal')"><i class="fas fa-plus"></i> New Post</button>
+      </div>
+      <div class="chart-card" style="padding:0;">
+        <table class="admin-table">
+          <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Status</th><th></th></tr></thead>
+          <tbody id="blogTableBody"><tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:24px;">Loading posts…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VOLUNTEERS PANEL -->
+    <div class="panel" id="volunteers">
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="admin-stat-card"><div class="big" id="volTotal">0</div><div class="lbl">Total Applications</div></div>
+        <div class="admin-stat-card mango"><div class="big" id="volPending">0</div><div class="lbl">Pending Review</div></div>
+        <div class="admin-stat-card"><div class="big" id="volApproved">0</div><div class="lbl">Approved</div></div>
+        <div class="admin-stat-card mango"><div class="big" id="volCounties">—</div><div class="lbl">Counties Represented</div></div>
+      </div>
+      <div class="chart-card" style="padding:0;">
+        <table class="admin-table">
+          <thead><tr><th>Name</th><th>Role</th><th>County</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+          <tbody id="volTableBody"><tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MESSAGES PANEL -->
+    <div class="panel" id="messages">
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="admin-stat-card mango"><div class="big" id="msgUnread">0</div><div class="lbl">Unread</div></div>
+        <div class="admin-stat-card"><div class="big" id="msgTotal">0</div><div class="lbl">Total Messages</div></div>
+      </div>
+      <div class="chart-card" style="padding:0;">
+        <table class="admin-table">
+          <thead><tr><th>From</th><th>Subject</th><th>Message</th><th>Date</th><th>Status</th><th></th></tr></thead>
+          <tbody id="msgTableBody"><tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NEWSLETTER PANEL -->
+    <div class="panel" id="newsletter">
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="admin-stat-card"><div class="big" id="nlTotal">0</div><div class="lbl">Total Subscribers</div></div>
+        <div class="admin-stat-card mango"><div class="big" id="nlThisMonth">0</div><div class="lbl">New This Month</div></div>
+      </div>
+      <div class="chart-card" style="padding:0;">
+        <table class="admin-table">
+          <thead><tr><th>Email</th><th>Source</th><th>Date Subscribed</th></tr></thead>
+          <tbody id="nlTableBody"><tr><td colspan="3" style="text-align:center;color:var(--text-light);padding:24px;">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REPORTS PANEL -->
+    <div class="panel" id="reports">
+      <div class="grid-3">
+        <div class="admin-stat-card"><div class="big">📊</div><div class="lbl" style="margin-top:8px;">2025 Annual Impact Report</div><button class="qa-btn" style="margin-top:14px;">Download PDF</button></div>
+        <div class="admin-stat-card mango"><div class="big">💰</div><div class="lbl" style="margin-top:8px;">Q2 2026 Financial Report</div><button class="qa-btn" style="margin-top:14px;">Download PDF</button></div>
+        <div class="admin-stat-card"><div class="big">🏫</div><div class="lbl" style="margin-top:8px;">School Performance Report</div><button class="qa-btn" style="margin-top:14px;">Download PDF</button></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODALS (simplified, shared structure) -->
+<div class="modal-overlay" id="donationModal">
+  <div class="modal-card">
+    <h3 style="color:var(--green);margin-bottom:20px;">Record Donation</h3>
+    <div class="modal-form">
+      <div class="form-field"><label>Donor Name</label><input type="text" placeholder="Full name"></div>
+      <div class="form-field"><label>Amount (KES)</label><input type="number" placeholder="0"></div>
+      <div class="form-field"><label>Method</label><select><option>M-Pesa</option><option>PayNecta</option><option>Bank Transfer</option></select></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="closeModal('donationModal')">Save Donation</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal-card">
+    <h3 style="color:var(--green);margin-bottom:20px;">Upload Gallery Photo</h3>
+    <div class="modal-form">
+      <div class="form-field"><label>Gallery</label><select><option>West Pokot</option><option>Trans Nzoia</option></select></div>
+      <div class="form-field"><label>Photo File</label><input type="file"></div>
+      <div class="form-field"><label>Caption</label><input type="text" placeholder="e.g. Morning feeding — Kapenguria"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="closeModal('uploadModal')">Upload</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="blogModal">
+  <div class="modal-card" style="max-width:560px;">
+    <h3 style="color:var(--green);margin-bottom:20px;">New Blog Post</h3>
+    <div class="modal-form">
+      <div class="form-field"><label>Title *</label><input type="text" id="bpTitle" placeholder="Post title"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-field"><label>Category</label>
+          <select id="bpCategory">
+            <option value="feeding">School Feeding</option>
+            <option value="emergency">Emergency</option>
+            <option value="impact">Impact</option>
+            <option value="community">Community</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Status</label>
+          <select id="bpStatus"><option value="published">Published</option><option value="draft">Draft</option></select>
+        </div>
+      </div>
+      <div class="form-field"><label>Cover Image URL (optional)</label><input type="text" id="bpImage" placeholder="https://…"></div>
+      <div class="form-field"><label>Excerpt (short summary)</label><textarea id="bpExcerpt" style="min-height:70px;" placeholder="One or two sentences shown on the blog listing…"></textarea></div>
+      <div class="form-field"><label>Full Content *</label><textarea id="bpContent" style="min-height:140px;" placeholder="Write the full post content…"></textarea></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="saveBlogPost()"><i class="fas fa-save"></i> Save Post</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="projectModal">
+  <div class="modal-card">
+    <h3 style="color:var(--green);margin-bottom:20px;">New Project</h3>
+    <div class="modal-form">
+      <div class="form-field"><label>Project Name</label><input type="text" placeholder="e.g. WASH Expansion"></div>
+      <div class="form-field"><label>Budget (KES)</label><input type="number" placeholder="0"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="closeModal('projectModal')">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+// ─────────────────────────────────────────
+// CONFIG — replace with your real Firebase values from
+// console.firebase.google.com → lishe-kwa-mtoto → Project Settings
+// ─────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCrqj8bvEQ8nLuJFxLClAGAvnGkaiYa7Hc",
+  authDomain: "lishe-kwa-mtoto-c23a9.firebaseapp.com",
+  projectId: "lishe-kwa-mtoto-c23a9",
+  storageBucket: "lishe-kwa-mtoto-c23a9.firebasestorage.app",
+  messagingSenderId: "1069234464410",
+  appId: "1:1069234464410:web:b523840867314a3d5ae123"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// ─────────────────────────────────────────
+// AUTH GUARD — SESSION persistence, redirect if not signed in
+// ─────────────────────────────────────────
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+  .then(() => {
+    auth.onAuthStateChanged(user => {
+      if (!user) { window.location.href = 'admin-login.html'; }
+    });
+  })
+  .catch(() => { window.location.href = 'admin-login.html'; });
+
+// ─────────────────────────────────────────
+// PANEL NAV
+// ─────────────────────────────────────────
+function showPanel(id, link) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+  link.classList.add('active');
+  const titles = {
+    overview:'Dashboard Overview', analytics:'Website Analytics', donations:'Donations',
+    projects:'Projects', gallery:'Gallery Management', blog:'Blog Posts',
+    volunteers:'Volunteers', messages:'Messages', newsletter:'Newsletter', reports:'Reports'
+  };
+  document.getElementById('panelTitle').textContent = titles[id] || 'Dashboard';
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ─────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────
+const greenC = '#0B5D3B', mangoC = '#F4A300';
+const GOAL   = 500000;
+
+function fmtKES(n) { return 'KES ' + Number(n).toLocaleString(); }
+function fmtDate(ts) {
+  if (!ts || !ts.toDate) return '—';
+  return ts.toDate().toLocaleString('en-KE', { dateStyle:'medium', timeStyle:'short' });
+}
+function timeAgo(ts) {
+  if (!ts || !ts.toDate) return '—';
+  const diff = Math.floor((Date.now() - ts.toDate().getTime()) / 60000);
+  if (diff < 1)  return 'just now';
+  if (diff < 60) return diff + ' min ago';
+  const h = Math.floor(diff / 60);
+  if (h < 24)   return h + ' hr' + (h > 1 ? 's' : '') + ' ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+
+// ─────────────────────────────────────────
+// CHARTS (initialised with empty data, filled by Firestore)
+// ─────────────────────────────────────────
+let donationChartInst, paymentChartInst;
+
+// Bar chart — last 14 days buckets
+const last14Labels = [];
+const last14Map    = {};
+for (let i = 13; i >= 0; i--) {
+  const d   = new Date();
+  d.setDate(d.getDate() - i);
+  const key = d.toISOString().slice(0, 10);          // YYYY-MM-DD
+  const lbl = d.toLocaleDateString('en-KE', { day:'numeric', month:'short' });
+  last14Labels.push(lbl);
+  last14Map[key] = { lbl, amount: 0 };
+}
+
+donationChartInst = new Chart(document.getElementById('donationChart'), {
+  type: 'bar',
+  data: {
+    labels: last14Labels,
+    datasets: [{ label: 'KES', data: last14Labels.map(() => 0),
+      backgroundColor: greenC, borderRadius: 5 }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales:  { y: { beginAtZero: true,
+      ticks: { callback: v => 'KES ' + v.toLocaleString() } } }
+  }
+});
+
+paymentChartInst = new Chart(document.getElementById('paymentChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['PayNecta / M-Pesa STK', 'Manual Till'],
+    datasets: [{ data: [0, 0], backgroundColor: [greenC, mangoC] }]
+  },
+  options: { plugins: { legend: { position:'bottom',
+    labels: { boxWidth: 12, font: { size: 11 } } } } }
+});
+
+new Chart(document.getElementById('trafficChart'), {
+  type: 'line',
+  data: {
+    labels: ['Home','About','Programs','Donate','Gallery','Blog','Volunteer'],
+    datasets: [{ label: 'Visits', data: [8200,3100,2400,5600,1900,1400,1100],
+      borderColor: greenC, backgroundColor: 'rgba(11,93,59,0.08)',
+      fill: true, tension: 0.4 }]
+  },
+  options: { plugins: { legend: { display: false } } }
+});
+
+// ─────────────────────────────────────────
+// FIRESTORE LIVE LISTENERS
+// ─────────────────────────────────────────
+db.collection('donations')
+  .orderBy('timestamp', 'desc')
+  .onSnapshot(snapshot => {
+    const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // ── TOTALS ──────────────────────────────
+    let total   = 0;
+    let paynecta = 0, manual = 0;
+    const dailyTotals = { ...Object.fromEntries(Object.keys(last14Map).map(k => [k, 0])) };
+
+    docs.forEach(d => {
+      const amt = Number(d.amount) || 0;
+      total += amt;
+
+      if (d.source === 'paynecta') paynecta += amt;
+      else manual += amt;
+
+      if (d.timestamp?.toDate) {
+        const key = d.timestamp.toDate().toISOString().slice(0, 10);
+        if (dailyTotals.hasOwnProperty(key)) dailyTotals[key] += amt;
+      }
+    });
+
+    // ── STAT CARDS ──────────────────────────
+    document.getElementById('statTotalRaised').textContent = fmtKES(total);
+    document.getElementById('statDonorCount').textContent  = docs.length.toLocaleString();
+
+    // ── CAMPAIGN PROGRESS (donate page elements may not exist here, guard) ──
+    const pBar = document.getElementById('progFillBar');
+    const pRaised = document.getElementById('progRaised');
+    const pCount  = document.getElementById('progDonorCount');
+    if (pBar)    pBar.style.width    = Math.min(100, Math.round(total/GOAL*100)) + '%';
+    if (pRaised) pRaised.textContent = fmtKES(total);
+    if (pCount)  pCount.textContent  = docs.length.toLocaleString();
+
+    // ── DAILY BAR CHART ──────────────────────
+    donationChartInst.data.datasets[0].data = Object.values(dailyTotals);
+    donationChartInst.update();
+
+    // ── PAYMENT SOURCE DOUGHNUT ──────────────
+    paymentChartInst.data.datasets[0].data = [paynecta, manual];
+    paymentChartInst.update();
+
+    // ── OVERVIEW: RECENT ACTIVITY TABLE ──────
+    const actBody = document.getElementById('recentActivityBody');
+    if (actBody) {
+      actBody.innerHTML = docs.slice(0, 10).map(d => `
+        <tr>
+          <td>${d.displayName || 'Kind Donor'}</td>
+          <td><strong style="color:var(--green);">${fmtKES(d.amount)}</strong></td>
+          <td style="color:var(--text-light);font-size:0.82rem;">${d.phone || '—'}</td>
+          <td style="color:var(--text-light);font-size:0.82rem;">${d.reference || '—'}</td>
+          <td style="font-size:0.82rem;">${timeAgo(d.timestamp)}</td>
+        </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-light);">No donations yet.</td></tr>';
+    }
+
+    // ── DONATIONS PANEL: FULL TABLE ───────────
+    const donBody = document.getElementById('donationsTableBody');
+    if (donBody) {
+      donBody.innerHTML = docs.map(d => `
+        <tr>
+          <td>${d.displayName || 'Kind Donor'}</td>
+          <td><strong>${fmtKES(d.amount)}</strong></td>
+          <td style="font-size:0.82rem;color:var(--text-light);">${d.phone || '—'}</td>
+          <td style="font-size:0.82rem;color:var(--text-light);">${d.reference || '—'}</td>
+          <td style="font-size:0.82rem;">${fmtDate(d.timestamp)}</td>
+          <td><span class="admin-badge badge-green">Completed</span></td>
+        </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-light);">No donations yet.</td></tr>';
+    }
+
+  }, err => {
+    console.error('Firestore error:', err.message);
+    const msg = `<tr><td colspan="6" style="color:#dc2626;text-align:center;">Firestore error: ${err.message}</td></tr>`;
+    const actBody = document.getElementById('recentActivityBody');
+    const donBody = document.getElementById('donationsTableBody');
+    if (actBody) actBody.innerHTML = msg;
+    if (donBody) donBody.innerHTML = msg;
+  });
+
+// ─────────────────────────────────────────
+// EXPORT CSV  (wired to button in donations panel)
+// ─────────────────────────────────────────
+async function exportCSV() {
+  const snap = await db.collection('donations').orderBy('timestamp','desc').get();
+  const rows = [['Name','Amount (KES)','Phone','Reference','Source','Date']];
+  snap.forEach(d => {
+    const data = d.data();
+    rows.push([
+      data.displayName || 'Kind Donor',
+      data.amount || 0,
+      data.phone  || '',
+      data.reference || '',
+      data.source || 'paynecta',
+      data.timestamp?.toDate ? data.timestamp.toDate().toISOString() : ''
+    ]);
+  });
+  const csv  = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type:'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `lishe-donations-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─────────────────────────────────────────
+// BLOG POSTS — live listener
+// ─────────────────────────────────────────
+db.collection('blogPosts')
+  .orderBy('publishedAt', 'desc')
+  .onSnapshot(snap => {
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const pub  = docs.filter(d => d.status === 'published').length;
+    const dft  = docs.filter(d => d.status !== 'published').length;
+    const meta = document.getElementById('blogMeta');
+    if (meta) meta.textContent = `${pub} published · ${dft} draft${dft !== 1 ? 's' : ''}`;
+
+    const body = document.getElementById('blogTableBody');
+    if (!body) return;
+    body.innerHTML = docs.map(d => `
+      <tr>
+        <td style="max-width:260px;">${d.title || 'Untitled'}</td>
+        <td>${d.categoryLabel || d.category || '—'}</td>
+        <td style="font-size:0.82rem;">${fmtDate(d.publishedAt)}</td>
+        <td><span class="admin-badge ${d.status === 'published' ? 'badge-green' : 'badge-gray'}">${d.status === 'published' ? 'Published' : 'Draft'}</span></td>
+        <td><a href="#" onclick="deleteDoc('blogPosts','${d.id}')" style="color:#dc2626;font-size:0.8rem;">Delete</a></td>
+      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:24px;">No posts yet.</td></tr>';
+  }, err => console.error('Blog listener:', err.message));
+
+// Save new blog post from modal
+async function saveBlogPost() {
+  const title    = document.getElementById('bpTitle')?.value.trim();
+  const category = document.getElementById('bpCategory')?.value;
+  const content  = document.getElementById('bpContent')?.value.trim();
+  const excerpt  = document.getElementById('bpExcerpt')?.value.trim();
+  const imageUrl = document.getElementById('bpImage')?.value.trim();
+  const status   = document.getElementById('bpStatus')?.value || 'draft';
+  const catLabels = { feeding:'School Feeding', emergency:'Emergency', impact:'Impact', community:'Community' };
+
+  if (!title || !content) { alert('Title and content are required.'); return; }
+
+  try {
+    await db.collection('blogPosts').add({
+      title, category, categoryLabel: catLabels[category] || category,
+      content, excerpt: excerpt || content.slice(0, 160) + '…',
+      imageUrl: imageUrl || '',
+      status,
+      publishedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    closeModal('blogModal');
+    document.querySelectorAll('#blogModal input, #blogModal textarea, #blogModal select')
+      .forEach(el => el.value = '');
+  } catch (err) { alert('Save failed: ' + err.message); }
+}
+
+// ─────────────────────────────────────────
+// VOLUNTEERS — live listener
+// ─────────────────────────────────────────
+db.collection('volunteers')
+  .orderBy('submittedAt', 'desc')
+  .onSnapshot(snap => {
+    const docs    = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const pending  = docs.filter(d => d.status === 'pending').length;
+    const approved = docs.filter(d => d.status === 'approved').length;
+    const counties = [...new Set(docs.map(d => d.county).filter(Boolean))].length;
+
+    const el = (id) => document.getElementById(id);
+    if (el('volTotal'))    el('volTotal').textContent    = docs.length;
+    if (el('volPending'))  el('volPending').textContent  = pending;
+    if (el('volApproved')) el('volApproved').textContent = approved;
+    if (el('volCounties')) el('volCounties').textContent = counties || '—';
+
+    const body = document.getElementById('volTableBody');
+    if (!body) return;
+    body.innerHTML = docs.map(d => `
+      <tr>
+        <td>${d.name || '—'}</td>
+        <td style="font-size:0.82rem;">${d.role || '—'}</td>
+        <td style="font-size:0.82rem;">${d.county || '—'}</td>
+        <td style="font-size:0.82rem;">${fmtDate(d.submittedAt)}</td>
+        <td><span class="admin-badge ${d.status === 'approved' ? 'badge-green' : 'badge-mango'}">${d.status || 'pending'}</span></td>
+        <td style="display:flex;gap:8px;">
+          <a href="#" onclick="approveVolunteer('${d.id}')" style="color:var(--green);font-size:0.8rem;">Approve</a>
+          <a href="#" onclick="deleteDoc('volunteers','${d.id}')" style="color:#dc2626;font-size:0.8rem;">Delete</a>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">No applications yet.</td></tr>';
+  }, err => console.error('Volunteers listener:', err.message));
+
+async function approveVolunteer(id) {
+  if (!confirm('Approve this volunteer?')) return;
+  await db.collection('volunteers').doc(id).update({ status: 'approved' });
+}
+
+// ─────────────────────────────────────────
+// MESSAGES — live listener
+// ─────────────────────────────────────────
+db.collection('messages')
+  .orderBy('sentAt', 'desc')
+  .onSnapshot(snap => {
+    const docs   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const unread = docs.filter(d => d.status === 'unread').length;
+    const el = (id) => document.getElementById(id);
+    if (el('msgTotal'))  el('msgTotal').textContent  = docs.length;
+    if (el('msgUnread')) el('msgUnread').textContent = unread;
+
+    const body = document.getElementById('msgTableBody');
+    if (!body) return;
+    body.innerHTML = docs.map(d => `
+      <tr style="${d.status === 'unread' ? 'font-weight:600;' : ''}">
+        <td>${d.name || '—'}<br><span style="font-size:0.75rem;color:var(--text-light);">${d.email || ''}</span></td>
+        <td style="font-size:0.85rem;">${d.subject || '—'}</td>
+        <td style="font-size:0.82rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.message || ''}</td>
+        <td style="font-size:0.82rem;">${fmtDate(d.sentAt)}</td>
+        <td><span class="admin-badge ${d.status === 'unread' ? 'badge-gray' : d.status === 'replied' ? 'badge-green' : 'badge-mango'}">${d.status || 'unread'}</span></td>
+        <td style="display:flex;gap:8px;">
+          <a href="#" onclick="markReplied('${d.id}')" style="color:var(--green);font-size:0.8rem;">Replied</a>
+          <a href="#" onclick="deleteDoc('messages','${d.id}')" style="color:#dc2626;font-size:0.8rem;">Delete</a>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">No messages yet.</td></tr>';
+  }, err => console.error('Messages listener:', err.message));
+
+async function markReplied(id) {
+  await db.collection('messages').doc(id).update({ status: 'replied' });
+}
+
+// ─────────────────────────────────────────
+// NEWSLETTER SUBSCRIBERS — live listener
+// ─────────────────────────────────────────
+db.collection('subscribers')
+  .orderBy('subscribedAt', 'desc')
+  .onSnapshot(snap => {
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const now  = new Date();
+    const thisMonth = docs.filter(d => {
+      if (!d.subscribedAt?.toDate) return false;
+      const dt = d.subscribedAt.toDate();
+      return dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear();
+    }).length;
+
+    const el = (id) => document.getElementById(id);
+    if (el('nlTotal'))     el('nlTotal').textContent     = docs.length.toLocaleString();
+    if (el('nlThisMonth')) el('nlThisMonth').textContent = '+' + thisMonth;
+
+    const body = document.getElementById('nlTableBody');
+    if (!body) return;
+    body.innerHTML = docs.map(d => `
+      <tr>
+        <td>${d.email || '—'}</td>
+        <td style="font-size:0.82rem;">${d.source || 'website'}</td>
+        <td style="font-size:0.82rem;">${fmtDate(d.subscribedAt)}</td>
+      </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-light);padding:24px;">No subscribers yet.</td></tr>';
+  }, err => console.error('Newsletter listener:', err.message));
+
+// ─────────────────────────────────────────
+// SHARED DELETE HELPER
+// ─────────────────────────────────────────
+async function deleteDoc(collection, id) {
+  if (!confirm('Delete this record? This cannot be undone.')) return;
+  try {
+    await db.collection(collection).doc(id).delete();
+  } catch (err) { alert('Delete failed: ' + err.message); }
+}
+
+// ─────────────────────────────────────────
+// SIGN OUT
+// ─────────────────────────────────────────
+function signOut() {
+  auth.signOut()
+    .then(() => { window.location.href = 'admin-login.html'; })
+    .catch(err => alert('Sign out failed: ' + err.message));
+}
+</script>
+</body>
+</html>
